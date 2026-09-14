@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../images/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../images/favicon-180.png">
+<title>Leads - Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css">
+<link rel="stylesheet" href="../css/admin.css">
+</head>
+<body class="admin-body">
+
+<div class="admin-shell">
+  <div id="admin-sidebar-slot"></div>
+  <div class="admin-main">
+    <div class="admin-topbar"><h1>Leads</h1></div>
+    <div id="leads-flash"></div>
+    <div class="admin-panel">
+      <table class="admin-table">
+        <thead><tr><th>Name</th><th>Contact</th><th>Interest</th><th>Source</th><th>Message</th><th>Status</th><th>Received</th><th></th></tr></thead>
+        <tbody id="leads-body"><tr><td colspan="8">Loading…</td></tr></tbody>
+      </table>
+      <div id="leads-pagination" style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 4px 4px;"></div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/admin/admin-shell.js"></script>
+<script>
+function escapeHtml(s) {
+  return (s || '').toString().replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+function fmtDate(iso) {
+  if (!iso) return 'Not set';
+  return new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+var STATUSES = ['new', 'contacted', 'quoted', 'won', 'lost'];
+var currentPage = 1;
+
+async function loadLeads(page) {
+  currentPage = page || 1;
+  var body = document.getElementById('leads-body');
+  var pager = document.getElementById('leads-pagination');
+  body.innerHTML = '<tr><td colspan="8">Loading…</td></tr>';
+  pager.innerHTML = '';
+
+  try {
+    var data = await window.BTE_API.adminGet('/leads?page=' + currentPage + '&per_page=25');
+
+    if (!data.leads.length) {
+      body.innerHTML = (
+        '<tr><td colspan="8" style="text-align:center; padding:40px 20px;">' +
+        '<div style="font-weight:600; margin-bottom:6px;">' + (currentPage > 1 ? 'No more leads on this page.' : 'No leads yet.') + '</div>' +
+        '<div style="color:var(--steel-light); font-size:13px; max-width:360px; margin:0 auto;">' +
+        (currentPage > 1
+          ? 'You have gone past the last page of results.'
+          : 'Leads submitted through the contact form, quote form, and sizing calculator will show up here as soon as someone submits one.') +
+        '</div></td></tr>'
+      );
+      if (currentPage > 1) renderPager({ page: currentPage, total_pages: currentPage - 1, has_prev: true, has_next: false });
+      return;
+    }
+
+    var rows = data.leads.map(function (l) {
+      var email = l.email ? '<br><span style="color:var(--steel-light); font-size:12px;">' + escapeHtml(l.email) + '</span>' : '';
+      var options = STATUSES.map(function (s) {
+        return '<option value="' + s + '"' + (l.status === s ? ' selected' : '') + '>' + s.charAt(0).toUpperCase() + s.slice(1) + '</option>';
+      }).join('');
+      var msg = (l.message || 'No message').slice(0, 120);
+      return (
+        '<tr data-lead-id="' + l.id + '">' +
+        '<td>' + escapeHtml(l.full_name) + '</td>' +
+        '<td>' + escapeHtml(l.phone) + email + '</td>' +
+        '<td>' + escapeHtml(l.interest || 'Not specified') + '</td>' +
+        '<td>' + escapeHtml(l.source) + '</td>' +
+        '<td style="max-width:220px; font-size:12.5px; color:var(--steel);">' + escapeHtml(msg) + '</td>' +
+        '<td><select class="input status-select" data-id="' + l.id + '" style="padding:6px 10px; font-size:12px;">' + options + '</select></td>' +
+        '<td>' + fmtDate(l.created_at) + '</td>' +
+        '<td><button type="button" class="btn btn-outline btn-sm delete-lead-btn" data-id="' + l.id + '" data-name="' + escapeHtml(l.full_name) + '" title="Delete this lead\'s data">Delete</button></td>' +
+        '</tr>'
+      );
+    }).join('');
+    body.innerHTML = rows;
+
+    body.querySelectorAll('.delete-lead-btn').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        if (!window.confirm('Delete all data for "' + btn.dataset.name + '"? This can\'t be undone.')) return;
+        var row = btn.closest('tr');
+        btn.textContent = '…';
+        btn.disabled = true;
+        try {
+          await window.BTE_API.adminDelete('/leads/' + btn.dataset.id);
+          row.remove();
+          if (!document.querySelectorAll('#leads-body tr').length) loadLeads(currentPage);
+        } catch (err) {
+          btn.textContent = 'Delete';
+          btn.disabled = false;
+          document.getElementById('leads-flash').innerHTML = '<div class="flash flash-error" role="alert" aria-live="assertive">Could not delete. Please try again.</div>';
+        }
+      });
+    });
+
+    body.querySelectorAll('.status-select').forEach(function (select) {
+      select.addEventListener('change', async function () {
+        var previous = select.value;
+        try {
+          await window.BTE_API.adminPatch('/leads/' + select.dataset.id + '/status', { status: select.value });
+        } catch (err) {
+          select.value = previous;
+          document.getElementById('leads-flash').innerHTML = '<div class="flash flash-error" role="alert" aria-live="assertive">Could not update status. Please try again.</div>';
+        }
+      });
+    });
+
+    renderPager(data.pagination);
+  } catch (err) {
+    body.innerHTML = (
+      '<tr><td colspan="8" style="text-align:center; padding:40px 20px;">' +
+      '<div style="font-weight:600; margin-bottom:6px;">Could not load leads</div>' +
+      '<div style="color:var(--steel-light); font-size:13px; margin-bottom:14px;">' + escapeHtml(err.message || 'Something went wrong reaching the server.') + '</div>' +
+      '<button class="btn btn-primary btn-sm" id="leads-retry">Try again</button>' +
+      '</td></tr>'
+    );
+    var retryBtn = document.getElementById('leads-retry');
+    if (retryBtn) retryBtn.addEventListener('click', function () { loadLeads(currentPage); });
+  }
+}
+
+function renderPager(pagination) {
+  var pager = document.getElementById('leads-pagination');
+  if (!pagination || pagination.total_pages <= 1) { pager.innerHTML = ''; return; }
+  pager.innerHTML = (
+    '<span style="font-size:13px; color:var(--steel-light);">Page ' + pagination.page + ' of ' + pagination.total_pages + '</span>' +
+    '<span style="display:flex; gap:8px;">' +
+    '<button class="btn btn-outline btn-sm" id="leads-prev"' + (pagination.has_prev ? '' : ' disabled') + '>Previous</button>' +
+    '<button class="btn btn-outline btn-sm" id="leads-next"' + (pagination.has_next ? '' : ' disabled') + '>Next</button>' +
+    '</span>'
+  );
+  var prevBtn = document.getElementById('leads-prev');
+  var nextBtn = document.getElementById('leads-next');
+  if (prevBtn) prevBtn.addEventListener('click', function () { loadLeads(currentPage - 1); });
+  if (nextBtn) nextBtn.addEventListener('click', function () { loadLeads(currentPage + 1); });
+}
+
+document.addEventListener('DOMContentLoaded', async function () {
+  var user = await window.BTE_ADMIN.guard();
+  if (!user) return;
+  window.BTE_ADMIN.mountSidebar('leads', user);
+  await loadLeads(1);
+});
+</script>
+</body>
+</html>

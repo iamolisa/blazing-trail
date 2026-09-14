@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../images/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../images/favicon-180.png">
+<title>Products - Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css">
+<link rel="stylesheet" href="../css/admin.css">
+</head>
+<body class="admin-body">
+
+<div class="admin-shell">
+  <div id="admin-sidebar-slot"></div>
+  <div class="admin-main">
+    <div class="admin-topbar"><h1>Products</h1><a href="product-form.html" class="btn btn-primary btn-sm">+ New Product</a></div>
+    <div id="products-flash"></div>
+    <div class="admin-panel">
+      <table class="admin-table">
+        <thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Featured</th><th>Active</th><th></th></tr></thead>
+        <tbody id="products-body"><tr><td colspan="6">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/admin/admin-shell.js"></script>
+<script>
+function escapeHtml(s) {
+  return (s || '').toString().replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+
+async function loadProducts() {
+  var body = document.getElementById('products-body');
+  try {
+    var data = await window.BTE_API.adminGet('/products');
+    var rows = data.products.map(function (p) {
+      return (
+        '<tr>' +
+        '<td>' + escapeHtml(p.name) + '</td>' +
+        '<td>' + escapeHtml(p.category ? p.category.name : 'Not set') + '</td>' +
+        '<td>' + escapeHtml(p.formatted_price) + '</td>' +
+        '<td>' + (p.is_featured ? '✓' : '✕') + '</td>' +
+        '<td>' + (p.is_active ? '✓' : '✕') + '</td>' +
+        '<td><a href="product-form.html?id=' + p.id + '" class="icon-btn">Edit</a> ' +
+        '<button type="button" class="icon-btn delete-btn" data-id="' + p.id + '" style="color:var(--red); background:none; border:none; cursor:pointer;">Delete</button></td>' +
+        '</tr>'
+      );
+    }).join('');
+    body.innerHTML = rows || '<tr><td colspan="6">No products yet.</td></tr>';
+
+    body.querySelectorAll('.delete-btn').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        if (!confirm('Delete this product?')) return;
+        try {
+          await window.BTE_API.adminDelete('/products/' + btn.dataset.id);
+          loadProducts();
+        } catch (err) {
+          document.getElementById('products-flash').innerHTML = '<div class="flash flash-error" role="alert" aria-live="assertive">Could not delete: ' + (err.message || 'unknown error') + '</div>';
+        }
+      });
+    });
+  } catch (err) {
+    body.innerHTML = '<tr><td colspan="6">Could not load products. Please refresh.</td></tr>';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async function () {
+  var user = await window.BTE_ADMIN.guard();
+  if (!user) return;
+  window.BTE_ADMIN.mountSidebar('products', user);
+  await loadProducts();
+});
+</script>
+</body>
+</html>

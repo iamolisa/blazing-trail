@@ -1,0 +1,8 @@
+# Blazing Trail Engineering
+# Update the Sitemap URL below once the real domain is confirmed and live.
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+
+Sitemap: https://blazingtrailengineering.com/sitemap.xml
