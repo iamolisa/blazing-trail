@@ -49,9 +49,9 @@
       '</div></section>' +
       '<section class="section" style="padding-top:70px;"><div class="container">' +
       '  <div class="grid grid-3" style="margin-bottom:64px;">' +
-      '    <a href="tel:' + biz.business_phone + '" class="card reveal"><div class="card-icon" id="icon-headset"></div><h3>Call us</h3><p>' + biz.business_phone + (biz.business_phone_secondary ? '<br>' + biz.business_phone_secondary : '') + '</p></a>' +
-      '    <a href="https://wa.me/' + biz.business_whatsapp + '" target="_blank" rel="noopener" class="card reveal reveal-delay-1"><div class="card-icon" id="icon-bolt"></div><h3>WhatsApp</h3><p>Fastest way to reach us. Chat directly.</p></a>' +
-      '    <a href="mailto:' + biz.business_email + '" class="card reveal reveal-delay-2"><div class="card-icon" id="icon-mail"></div><h3>Email</h3><p>' + biz.business_email + '</p></a>' +
+      '    <a href="tel:' + biz.business_phone + '" class="card reveal"><div class="card-accent"></div><h3>Call us</h3><p>' + biz.business_phone + (biz.business_phone_secondary ? '<br>' + biz.business_phone_secondary : '') + '</p></a>' +
+      '    <a href="https://wa.me/' + biz.business_whatsapp + '" target="_blank" rel="noopener" class="card reveal reveal-delay-1"><div class="card-accent"></div><h3>WhatsApp</h3><p>Fastest way to reach us. Chat directly.</p></a>' +
+      '    <a href="mailto:' + biz.business_email + '" class="card reveal reveal-delay-2"><div class="card-accent"></div><h3>Email</h3><p>' + biz.business_email + '</p></a>' +
       '  </div>' +
       '  <div class="grid grid-2" style="gap:56px;">' +
       '    <div class="reveal">' +
@@ -69,10 +69,6 @@
       '    <div class="reveal reveal-delay-1"><h3 style="margin-bottom:24px;">Frequently asked</h3><div style="display:flex; flex-direction:column; gap:14px;">' + faqHtml() + '</div></div>' +
       '  </div>' +
       '</div></section>';
-
-    document.getElementById('icon-headset').innerHTML = window.BTE_ICON('headset');
-    document.getElementById('icon-bolt').innerHTML = window.BTE_ICON('bolt');
-    document.getElementById('icon-mail').innerHTML = window.BTE_ICON('mail');
 
     wireForm(document.getElementById('contact-form'), '/contact/', document.getElementById('contact-flash'));
     window.BTE_SHELL.refreshReveal();

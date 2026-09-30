@@ -5,7 +5,6 @@
       return (
         '<a href="services.html?slug=' + s.slug + '" class="card reveal reveal-delay-' + (i % 3 + 1) + '">' +
         '  <span class="card-number">' + String(i + 1).padStart(2, '0') + '</span>' +
-        '  <div class="card-icon">' + window.BTE_ICON(s.icon) + '</div>' +
         '  <h3>' + s.title + '</h3><p>' + s.summary + '</p>' +
         '  <span class="card-link">Learn more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>' +
         '  <span class="card-underline"></span>' +
@@ -36,7 +35,7 @@
     var relatedCards = related.map(function (s, i) {
       return (
         '<a href="services.html?slug=' + s.slug + '" class="card reveal reveal-delay-' + (i + 1) + '">' +
-        '  <div class="card-icon">' + window.BTE_ICON(s.icon) + '</div><h3>' + s.title + '</h3><p>' + s.summary + '</p>' +
+        '  <div class="card-accent"></div><h3>' + s.title + '</h3><p>' + s.summary + '</p>' +
         '  <span class="card-underline"></span>' +
         '</a>'
       );
@@ -56,7 +55,7 @@
       '</div></section>' +
       '<section class="section"><div class="container"><div class="grid grid-2" style="gap:64px;">' +
       '  <div class="reveal">' +
-      '    <div class="card-icon" style="margin-bottom:28px;">' + window.BTE_ICON(service.icon) + '</div>' +
+      '    <div class="card-accent" style="margin-bottom:22px;"></div>' +
       '    <p style="font-size:17px; color:var(--white); margin-bottom:24px;">' + service.summary + '</p>' +
       paragraphsHtml(service.description, 'font-size:15.5px; margin-bottom:16px;') +
       '  </div>' +

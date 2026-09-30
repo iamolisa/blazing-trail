@@ -9,7 +9,7 @@
   function serviceCard(service, i) {
     return (
       '<a href="services.html?slug=' + service.slug + '" class="card reveal reveal-delay-' + (i % 4 + 1) + '">' +
-      '  <div class="card-icon">' + window.BTE_ICON(service.icon) + '</div>' +
+      '  <span class="card-number">' + String(i + 1).padStart(2, '0') + '</span>' +
       '  <h3>' + service.title + '</h3><p>' + service.summary + '</p>' +
       '  <span class="card-link">Learn more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>' +
       '  <span class="card-underline"></span>' +
@@ -110,8 +110,6 @@
   document.addEventListener('DOMContentLoaded', async function () {
     var biz = await window.BTE_SHELL.mount({ activePage: 'home', onDark: true, title: null });
     document.title = biz.business_name + ' - ' + biz.business_tagline;
-    document.getElementById('icon-shield').innerHTML = window.BTE_ICON('shield');
-    document.getElementById('icon-headset').innerHTML = window.BTE_ICON('headset');
     document.getElementById('icon-home-phone').innerHTML = window.BTE_ICON('phone');
     document.getElementById('icon-home-email').innerHTML = window.BTE_ICON('mail');
     document.getElementById('home-address').textContent = biz.business_address;

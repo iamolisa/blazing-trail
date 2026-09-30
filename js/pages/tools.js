@@ -99,7 +99,7 @@
     '    <button type="button" id="calc-submit-btn" class="btn btn-primary magnetic" style="width:100%; margin-top:6px;">Calculate my system</button>' +
     '    <div id="calc-error" style="margin-top:16px;"></div>' +
     '  </div>' +
-    '  <div class="reveal reveal-delay-1" style="position:sticky; top:120px;">' +
+    '  <div class="reveal reveal-delay-1 sticky-aside">' +
     '    <div class="card" style="padding:40px; margin-bottom:24px;"><div class="eyebrow" style="margin-bottom:20px;">Your estimate</div><div id="calculator-result"></div></div>' +
     '    <div class="card" id="calc-lead-card" style="padding:32px; display:none;"><h4 style="font-size:15px; margin-bottom:16px;">Get this estimate sent to our team</h4>' +
     '      <form id="calculator-lead-form">' +
@@ -113,7 +113,7 @@
     '</div></div></section>' +
     '<section class="section section-ice"><div class="container"><div class="grid grid-2" style="gap:56px; align-items:flex-start;">' +
     '  <div class="reveal">' +
-    '    <div class="card-icon" id="icon-clipboard"></div>' +
+    '    <div class="card-accent"></div>' +
     '    <h2 style="margin-bottom:14px;">Financing &amp; Installment Advisor</h2>' +
     '    <p style="margin-bottom:16px;">Tell it your budget, timeline, or what you want to run, and it will recommend a package and a rough monthly breakdown, grounded in our real current pricing, not guesses.</p>' +
     '    <p style="font-size:13px; color:var(--steel-light);">Installment arrangements are considered case-by-case, not a standing offer. This tool gives you a starting point, our team confirms the real terms.</p>' +
@@ -335,7 +335,6 @@
     var content = document.getElementById('page-content');
     await window.BTE_SHELL.mount({ activePage: 'tools', onDark: true, title: 'Sizing Tools' });
     content.innerHTML = STATIC_HTML;
-    document.getElementById('icon-clipboard').innerHTML = window.BTE_ICON('clipboard');
 
     initCalculator();
     initFinancingAdvisor();

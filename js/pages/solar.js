@@ -74,9 +74,9 @@
 
       '<section class="section">' +
       '  <div class="container"><div class="grid grid-3">' +
-      '    <div class="card reveal reveal-delay-1"><div class="card-icon">' + window.BTE_ICON('sun') + '</div><h3>Engineered, not guessed</h3><p>Every system starts with a real load assessment: appliances, running hours, peak demand, before we spec panels, inverter and battery.</p></div>' +
-      '    <div class="card reveal reveal-delay-2"><div class="card-icon">' + window.BTE_ICON('battery') + '</div><h3>Lithium or tubular battery options</h3><p>Longer lifespan and deeper discharge with lithium, or lower upfront cost with tubular, priced both ways so you can compare directly.</p></div>' +
-      '    <div class="card reveal reveal-delay-3"><div class="card-icon">' + window.BTE_ICON('headset') + '</div><h3>After-sales that exists</h3><p>Commissioning, optimisation and troubleshooting after handover, not just installation and a goodbye.</p></div>' +
+      '    <div class="card reveal reveal-delay-1"><div class="card-accent"></div><h3>Engineered, not guessed</h3><p>Every system starts with a real load assessment: appliances, running hours, peak demand, before we spec panels, inverter and battery.</p></div>' +
+      '    <div class="card reveal reveal-delay-2"><div class="card-accent"></div><h3>Lithium or tubular battery options</h3><p>Longer lifespan and deeper discharge with lithium, or lower upfront cost with tubular, priced both ways so you can compare directly.</p></div>' +
+      '    <div class="card reveal reveal-delay-3"><div class="card-accent"></div><h3>After-sales that exists</h3><p>Commissioning, optimisation and troubleshooting after handover, not just installation and a goodbye.</p></div>' +
       '  </div></div>' +
       '</section>' +
 
@@ -93,7 +93,7 @@
 
       '<section class="section">' +
       '  <div class="container"><div class="grid grid-2" style="gap:64px; align-items:flex-start;">' +
-      '    <div class="section-head reveal" style="margin-bottom:0; position:sticky; top:120px;">' +
+      '    <div class="section-head reveal sticky-aside" style="margin-bottom:0;">' +
       '      <div class="eyebrow">How it works</div><h2>From first call to commissioned system</h2>' +
       '      <p class="lead">A structured process, because solar isn\'t something to improvise.</p>' +
       '    </div>' +

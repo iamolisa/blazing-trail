@@ -8,7 +8,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="images/favicon-180.png">
 <title>About Us - Blazing Trail Engineering</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800;900&family=Work+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/main.css">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"LocalBusiness","name":"Blazing Trail Engineering","description":"Full energy solutions company offering solar system design, supply and installation, industrial electrical panel fabrication, and PLC automation across Nigeria.","telephone":"+234 808 557 8080","email":"info@blazingtrailengineering.com","address":{"@type":"PostalAddress","addressLocality":"Lagos","addressCountry":"NG"},"areaServed":["Lagos","Ogun","Imo","Nigeria"],"url":"https://blazingtrailengineering.com/","sameAs":[]}
@@ -70,9 +70,9 @@
   <div class="container">
     <div class="section-head center reveal"><div class="eyebrow">What guides the work</div><h2>Principles, not slogans</h2></div>
     <div class="grid grid-3">
-      <div class="card reveal reveal-delay-1"><div class="card-icon" id="icon-shield"></div><h3>Engineered, not assumed</h3><p>Every system starts with a real load assessment, not a guess at what "should" work.</p><span class="card-underline"></span></div>
-      <div class="card reveal reveal-delay-2"><div class="card-icon" id="icon-cpu"></div><h3>Integration over add-ons</h3><p>Solar, panels and automation are designed to work together, not bolted on separately.</p><span class="card-underline"></span></div>
-      <div class="card reveal reveal-delay-3"><div class="card-icon" id="icon-headset"></div><h3>Support that outlasts install day</h3><p>After-sales support and optimisation are part of the deal, not a paid extra.</p><span class="card-underline"></span></div>
+      <div class="card reveal reveal-delay-1"><div class="card-accent"></div><h3>Engineered, not assumed</h3><p>Every system starts with a real load assessment, not a guess at what "should" work.</p><span class="card-underline"></span></div>
+      <div class="card reveal reveal-delay-2"><div class="card-accent"></div><h3>Integration over add-ons</h3><p>Solar, panels and automation are designed to work together, not bolted on separately.</p><span class="card-underline"></span></div>
+      <div class="card reveal reveal-delay-3"><div class="card-accent"></div><h3>Support that outlasts install day</h3><p>After-sales support and optimisation are part of the deal, not a paid extra.</p><span class="card-underline"></span></div>
     </div>
   </div>
 </section>
@@ -115,9 +115,6 @@
 <script>
 document.addEventListener('DOMContentLoaded', async function () {
   await window.BTE_SHELL.mount({ activePage: 'about', onDark: true, title: 'About Us' });
-  document.getElementById('icon-shield').innerHTML = window.BTE_ICON('shield');
-  document.getElementById('icon-cpu').innerHTML = window.BTE_ICON('cpu');
-  document.getElementById('icon-headset').innerHTML = window.BTE_ICON('headset');
   window.BTE_SHELL.refreshReveal();
 });
 </script>

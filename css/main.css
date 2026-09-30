@@ -5,12 +5,13 @@
      Colour   : dark navy background (lifted a shade brighter than the
                 original near-black), crimson red #E4001B (primary),
                 elevated dark-navy surfaces for cards, off-white ink.
-     Type     : Archivo (display, structural/confident) · IBM Plex Sans (body)
-                · IBM Plex Mono (specs, stat numbers, eyebrow labels).
-     Signature: red-glass icon chips (translucent crimson tint + red glow)
-                on every card/avatar/timeline marker: a small, consistent
-                accent that reads as "current running through the system"
-                without leaning on gradients or numbered-step clichés.
+     Type     : Big Shoulders Display (display, condensed/industrial - a
+                nod to the engineering trade rather than a generic tech
+                sans) · Work Sans (body) · Space Mono (specs, stat
+                numbers, eyebrow labels).
+     Signature: a bold standalone number for ordered lists (services) and
+                a plain red accent rule everywhere else a card needs a
+                marker - deliberately not another boxed icon.
    ========================================================================= */
 
 :root {
@@ -34,9 +35,9 @@
   --line-dark: rgba(255, 255, 255, 0.28);
   --chip-bg: rgba(255, 255, 255, 0.09);
 
-  --font-display: 'Archivo', 'Arial Narrow', sans-serif;
-  --font-body: 'IBM Plex Sans', -apple-system, sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-display: 'Big Shoulders Display', 'Arial Narrow', sans-serif;
+  --font-body: 'Work Sans', -apple-system, sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, monospace;
 
   --container: 1240px;
   --radius-sm: 6px;
@@ -85,7 +86,7 @@ h1, h2, h3, h4 {
   font-family: var(--font-display);
   font-weight: 600;
   line-height: 1.05;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.005em;
   margin: 0;
 }
 
@@ -247,6 +248,17 @@ textarea:focus-visible, select:focus-visible {
 .section-head { max-width: 640px; margin-bottom: 64px; }
 .section-head.center { margin-left: auto; margin-right: auto; text-align: center; }
 .section-head h2 { font-size: clamp(30px, 4vw, 46px); }
+
+/* Sticky sidebar/heading beside scrolling content (process timeline,
+   calculator results panel). Only makes sense in the two-column desktop
+   layout it's paired with - once .grid-2 collapses to a single column
+   below 640px, "sticky" would pin this block in place while the content
+   meant to sit beside it scrolls underneath and visually collides with
+   it, so it's switched back to a normal, non-sticky block there. */
+.sticky-aside { position: sticky; top: 120px; }
+@media (max-width: 640px) {
+  .sticky-aside { position: static; top: auto; }
+}
 .section-head p.lead { font-size: 17px; margin-top: 18px; }
 
 /* reveal-on-scroll base state */
@@ -518,23 +530,21 @@ textarea:focus-visible, select:focus-visible {
 }
 .card:hover { transform: translateY(-6px); box-shadow: var(--shadow-card-hover); border-color: var(--red); }
 
-.card-icon {
-  width: 52px; height: 52px; border-radius: var(--radius-icon-md);
-  background: var(--red-tint);
-  border: 1px solid rgba(228, 0, 27, 0.28);
-  display: flex; align-items: center; justify-content: center; margin-bottom: 26px;
-  transition: transform 0.5s var(--ease), background 0.4s var(--ease);
-}
-.card:hover .card-icon { transform: rotate(-6deg) scale(1.06); background: rgba(228, 0, 27, 0.2); }
-.card-icon svg { width: 24px; height: 24px; stroke: var(--red); }
-
 .card h3 { font-size: 19px; margin-bottom: 12px; color: var(--white); }
 .card p { font-size: 14.5px; }
 
+/* Bold standalone number for genuinely ordered lists (the services
+   index) - it carries real information (position 1 of 8), so it earns
+   its place instead of being decoration standing in for one. */
 .card-number {
-  position: absolute; top: 26px; right: 30px;
-  font-family: var(--font-mono); font-size: 12px; color: var(--steel-light);
+  display: block; font-family: var(--font-display); font-weight: 800; font-size: 34px;
+  color: var(--red); opacity: 0.45; line-height: 1; margin-bottom: 18px;
 }
+
+/* Small accent rule used wherever a card previously had a generic
+   boxed icon and doesn't have a natural number to show instead - kept
+   deliberately plain rather than reaching for another symbol. */
+.card-accent { width: 30px; height: 3px; background: var(--red); border-radius: 2px; margin-bottom: 22px; }
 
 .card-link {
   display: inline-flex; align-items: center; gap: 8px; margin-top: 22px;
@@ -875,12 +885,11 @@ textarea.input { resize: vertical; min-height: 120px; }
 .intent-modal p { font-size: 13.5px; color: var(--steel); margin-bottom: 22px; }
 .intent-modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
 .intent-modal-grid a {
-  display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 16px;
-  border: 1px solid var(--line); border-radius: var(--radius-md); color: var(--white); transition: all 0.25s var(--ease);
+  display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px 14px;
+  border: 1px solid var(--line); border-radius: var(--radius-md); color: var(--white); font-size: 14px; font-weight: 600;
+  transition: all 0.25s var(--ease);
 }
-.intent-modal-grid a:hover { border-color: var(--red); background: var(--red-tint); transform: translateY(-2px); }
-.intent-modal-grid a svg { width: 20px; height: 20px; stroke: var(--red); }
-.intent-modal-grid a span { font-size: 13.5px; font-weight: 600; }
+.intent-modal-grid a:hover { border-color: var(--red); background: var(--red-tint); }
 .intent-modal-skip { display: block; text-align: center; font-size: 12.5px; color: var(--steel-light); }
 .intent-modal-skip:hover { color: var(--white); }
 

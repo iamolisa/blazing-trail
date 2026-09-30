@@ -6,12 +6,6 @@ window.BTE_CONFIG = {
   API_BASE_URL: (function () {
     // Allow overriding at runtime for local testing via
     // localStorage.setItem('bte_api_base', 'http://localhost:5000/api')
-    var override = window.localStorage && window.localStorage.getItem('bte_api_base');
-    if (override) return override;
-    // Default: same host on port 5000 for local dev, otherwise same-origin /api.
-    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-      return 'http://localhost:5000/api';
-    }
     // TODO: replace with your deployed Render API URL before going live.
     return 'https://blazing-backend-t6jk.onrender.com/api';;
   })(),

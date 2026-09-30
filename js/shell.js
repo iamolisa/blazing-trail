@@ -124,15 +124,15 @@ window.BTE_SHELL = (function () {
 
 
   var INTENT_MODAL_LINKS = [
-    ['products.html', 'grid', 'Products'],
-    ['services.html', 'tool', 'Services'],
-    ['tools.html', 'bolt', 'Size my system'],
-    ['packages.html', 'clipboard', 'Packages'],
+    ['products.html', 'Products'],
+    ['services.html', 'Services'],
+    ['tools.html', 'Size my system'],
+    ['packages.html', 'Packages'],
   ];
 
   function intentModalHtml() {
     var linksHtml = INTENT_MODAL_LINKS.map(function (l) {
-      return '<a href="' + l[0] + '">' + window.BTE_ICON(l[1]) + '<span>' + l[2] + '</span></a>';
+      return '<a href="' + l[0] + '">' + l[1] + '</a>';
     }).join('');
     return (
       '<div class="intent-modal-backdrop" id="intent-modal-backdrop">' +
@@ -148,21 +148,22 @@ window.BTE_SHELL = (function () {
   }
 
   var LAST_VISIT_KEY = 'bte_last_visit';
-  var INACTIVITY_RESET_MS = 60 * 60 * 1000; // 1 hour
+var SESSION_SEEN_KEY = 'bte_session_started';
+var INACTIVITY_RESET_MS = 60 * 60 * 1000; // 1 hour
 
-  function initIntentModal() {
-    var now = Date.now();
-    var lastVisit = parseInt(localStorage.getItem(LAST_VISIT_KEY), 10);
-    var isFreshEntrance = !lastVisit || (now - lastVisit) > INACTIVITY_RESET_MS;
+function initIntentModal() {
+  var now = Date.now();
+  var lastVisit = parseInt(localStorage.getItem(LAST_VISIT_KEY), 10);
+  var wasInactiveLongEnough = !lastVisit || (now - lastVisit) > INACTIVITY_RESET_MS;
 
-    // Every page view counts as activity, whether or not the modal ends
-    // up showing - this is what makes it an *inactivity* timer rather
-    // than a fixed "once every hour" clock: browsing continuously keeps
-    // pushing the reset point forward, and it only fires again after a
-    // full hour with no page views at all.
-    localStorage.setItem(LAST_VISIT_KEY, String(now));
+  var isNewTabSession = !sessionStorage.getItem(SESSION_SEEN_KEY);
 
-    if (!isFreshEntrance) return;
+  var isFreshEntrance = wasInactiveLongEnough || isNewTabSession;
+
+  localStorage.setItem(LAST_VISIT_KEY, String(now));
+  sessionStorage.setItem(SESSION_SEEN_KEY, '1');
+
+  if (!isFreshEntrance) return;
 
     setTimeout(function () {
       var wrap = document.createElement('div');
