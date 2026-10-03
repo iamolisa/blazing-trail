@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../images/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../images/favicon-180.png">
+<title>Product - Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800;900&family=Work+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css">
+<link rel="stylesheet" href="../css/admin.css">
+</head>
+<body class="admin-body">
+
+<div class="admin-shell">
+  <div id="admin-sidebar-slot"></div>
+  <div class="admin-main">
+    <div class="admin-topbar"><h1 id="form-title">New Product</h1><a href="products.html" class="btn btn-outline btn-sm">← Back to products</a></div>
+    <div id="form-flash"></div>
+    <div class="admin-panel" style="max-width:640px;">
+      <form id="product-form">
+        <div class="field"><label>Name</label><input type="text" name="name" class="input" required></div>
+        <div class="field"><label>Slug (URL-friendly)</label><input type="text" name="slug" class="input" required></div>
+        <div class="field"><label>Category</label><select name="category_id" class="input" id="category-select"><option value="">(None)</option></select></div>
+        <div class="field"><label>Short description</label><input type="text" name="short_description" class="input"></div>
+        <div class="field"><label>Spec summary</label><input type="text" name="spec_summary" class="input" placeholder="e.g. 5.5kVA / 48V"></div>
+        <div class="field"><label>Description (full)</label><textarea name="description" class="input" rows="4"></textarea></div>
+        <div class="field"><label>Price (₦, leave blank for 'Request quote')</label><input type="number" name="price_naira" class="input"></div>
+        <div class="field"><label>Image URL</label><input type="text" name="image_url" class="input"></div>
+        <div class="field" style="display:flex; gap:24px;">
+          <label style="display:flex; align-items:center; gap:8px; font-weight:400;"><input type="checkbox" name="is_featured"> Featured</label>
+          <label id="active-field" style="display:none; align-items:center; gap:8px; font-weight:400;"><input type="checkbox" name="is_active"> Active</label>
+        </div>
+        <button type="submit" class="btn btn-primary" id="submit-btn">Create product</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/admin/admin-shell.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async function () {
+  var user = await window.BTE_ADMIN.guard();
+  if (!user) return;
+  window.BTE_ADMIN.mountSidebar('products', user);
+
+  var params = new URLSearchParams(window.location.search);
+  var productId = params.get('id');
+  var form = document.getElementById('product-form');
+  var flash = document.getElementById('form-flash');
+
+  // Populate category dropdown
+  try {
+    var catData = await window.BTE_API.adminGet('/categories');
+    var select = document.getElementById('category-select');
+    catData.categories.forEach(function (c) {
+      var opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.name;
+      select.appendChild(opt);
+    });
+  } catch (err) {
+    flash.innerHTML = '<div class="flash flash-error" role="alert" aria-live="assertive">Could not load categories.</div>';
+  }
+
+  var existingProduct = null;
+  // Use querySelector('[name=...]') rather than form.fieldName shorthand:
+  // HTMLFormElement.name is a real reflected IDL property (the <form>'s own
+  // name attribute), so `form.name` silently returns that string instead of
+  // the "name" input element, and `form.name.value = x` becomes a no-op.
+  // querySelector has no such collision risk for any field name.
+  var fieldEls = {
+    name: form.querySelector('[name="name"]'),
+    slug: form.querySelector('[name="slug"]'),
+    category_id: form.querySelector('[name="category_id"]'),
+    short_description: form.querySelector('[name="short_description"]'),
+    spec_summary: form.querySelector('[name="spec_summary"]'),
+    description: form.querySelector('[name="description"]'),
+    price_naira: form.querySelector('[name="price_naira"]'),
+    image_url: form.querySelector('[name="image_url"]'),
+    is_featured: form.querySelector('[name="is_featured"]'),
+    is_active: form.querySelector('[name="is_active"]'),
+  };
+
+  if (productId) {
+    document.getElementById('form-title').textContent = 'Edit Product';
+    document.getElementById('submit-btn').textContent = 'Save changes';
+    document.getElementById('active-field').style.display = 'flex';
+    try {
+      var listData = await window.BTE_API.adminGet('/products');
+      existingProduct = listData.products.find(function (p) { return String(p.id) === productId; });
+      if (existingProduct) {
+        fieldEls.name.value = existingProduct.name || '';
+        fieldEls.slug.value = existingProduct.slug || '';
+        fieldEls.category_id.value = existingProduct.category_id || '';
+        fieldEls.short_description.value = existingProduct.short_description || '';
+        fieldEls.spec_summary.value = existingProduct.spec_summary || '';
+        fieldEls.description.value = existingProduct.description || '';
+        fieldEls.price_naira.value = existingProduct.price_naira || '';
+        fieldEls.image_url.value = existingProduct.image_url || '';
+        fieldEls.is_featured.checked = !!existingProduct.is_featured;
+        fieldEls.is_active.checked = !!existingProduct.is_active;
+      } else {
+        flash.innerHTML = '<div class="flash flash-error" role="alert" aria-live="assertive">Product not found.</div>';
+      }
+    } catch (err) {
+      flash.innerHTML = '<div class="flash flash-error" role="alert" aria-live="assertive">Could not load product.</div>';
+    }
+  }
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var fd = new FormData(form);
+    var payload = Object.fromEntries(fd.entries());
+    payload.is_featured = fieldEls.is_featured.checked;
+    payload.is_active = fieldEls.is_active.checked;
+
+    var btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    var original = btn.textContent;
+    btn.textContent = 'Saving…';
+    try {
+      if (productId) {
+        await window.BTE_API.adminPut('/products/' + productId, payload);
+      } else {
+        await window.BTE_API.adminPost('/products', payload);
+      }
+      window.location.href = 'products.html';
+    } catch (err) {
+      flash.innerHTML = '<div class="flash flash-error" role="alert" aria-live="assertive">' + (err.message || 'Could not save product.') + '</div>';
+      btn.disabled = false;
+      btn.textContent = original;
+    }
+  });
+});
+</script>
+</body>
+</html>

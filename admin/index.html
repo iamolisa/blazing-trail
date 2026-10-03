@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../images/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../images/favicon-180.png">
+<title>Dashboard - Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800;900&family=Work+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css">
+<link rel="stylesheet" href="../css/admin.css">
+</head>
+<body class="admin-body">
+
+<div class="admin-shell">
+  <div id="admin-sidebar-slot"></div>
+  <div class="admin-main">
+    <div class="admin-topbar"><h1>Dashboard</h1><a href="product-form.html" class="btn btn-primary btn-sm">+ New Product</a></div>
+    <div id="dash-flash"></div>
+    <div class="admin-stats" id="admin-stats"><p>Loading…</p></div>
+    <div class="admin-panel">
+      <h3>Recent leads</h3>
+      <table class="admin-table">
+        <thead><tr><th>Name</th><th>Phone</th><th>Interest</th><th>Source</th><th>Status</th><th>Received</th></tr></thead>
+        <tbody id="recent-leads-body"><tr><td colspan="6">Loading…</td></tr></tbody>
+      </table>
+    </div>
+    <a href="leads.html" class="card-link">View all leads <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  </div>
+</div>
+
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/admin/admin-shell.js"></script>
+<script>
+function escapeHtml(s) {
+  return (s || '').toString().replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+function fmtDate(iso) {
+  if (!iso) return 'Not set';
+  var d = new Date(iso);
+  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+document.addEventListener('DOMContentLoaded', async function () {
+  var user = await window.BTE_ADMIN.guard();
+  if (!user) return;
+  window.BTE_ADMIN.mountSidebar('dashboard', user);
+
+  try {
+    var data = await window.BTE_API.adminGet('/dashboard');
+    var s = data.stats;
+    document.getElementById('admin-stats').innerHTML =
+      '<div class="admin-stat-card"><div class="admin-stat-num">' + s.products + '</div><div class="admin-stat-label">Products</div></div>' +
+      '<div class="admin-stat-card"><div class="admin-stat-num">' + s.services + '</div><div class="admin-stat-label">Services</div></div>' +
+      '<div class="admin-stat-card"><div class="admin-stat-num">' + s.packages + '</div><div class="admin-stat-label">Packages</div></div>' +
+      '<div class="admin-stat-card"><div class="admin-stat-num">' + s.gallery + '</div><div class="admin-stat-label">Gallery items</div></div>' +
+      '<a href="testimonials.html" class="admin-stat-card" style="display:block; text-decoration:none;"><div class="admin-stat-num">' + s.testimonials + (s.pending_testimonials ? ' <span style="color:var(--red); font-size:14px;">(' + s.pending_testimonials + ' pending)</span>' : '') + '</div><div class="admin-stat-label">Testimonials</div></a>';
+
+    var rows = data.recent_leads.map(function (l) {
+      return '<tr><td>' + escapeHtml(l.full_name) + '</td><td>' + escapeHtml(l.phone) + '</td><td>' + escapeHtml(l.interest || 'Not specified') + '</td><td>' + escapeHtml(l.source) + '</td><td><span class="status-pill status-' + l.status + '">' + l.status + '</span></td><td>' + fmtDate(l.created_at) + '</td></tr>';
+    }).join('');
+    document.getElementById('recent-leads-body').innerHTML = rows || '<tr><td colspan="6">No leads yet.</td></tr>';
+  } catch (err) {
+    document.getElementById('dash-flash').innerHTML = '<div class="flash flash-error" role="alert" aria-live="assertive">Could not load dashboard data. Please refresh.</div>';
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../images/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../images/favicon-180.png">
+<title>Admin Login - Blazing Trail Engineering</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800;900&family=Work+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css">
+<link rel="stylesheet" href="../css/admin.css">
+</head>
+<body class="admin-body">
+
+<div class="admin-login-wrap">
+  <div class="admin-login-card">
+    <h1>Admin sign in</h1>
+    <p>Blazing Trail Engineering content dashboard.</p>
+    <div id="login-flash"></div>
+    <form id="login-form">
+      <div class="field"><label>Email</label><input type="email" name="email" class="input" required autofocus></div>
+      <div class="field"><label>Password</label><input type="password" name="password" class="input" required></div>
+      <button type="submit" class="btn btn-primary" style="width:100%;">Sign in</button>
+    </form>
+  </div>
+</div>
+
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/admin/admin-shell.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // Already signed in? Skip straight to the dashboard.
+  if (window.BTE_ADMIN.getToken()) {
+    window.location.href = 'index.html';
+    return;
+  }
+
+  var flash = document.getElementById('login-flash');
+  document.getElementById('login-form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var payload = Object.fromEntries(new FormData(e.target).entries());
+    var btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.textContent = 'Signing in…';
+    flash.innerHTML = '';
+    try {
+      var res = await window.BTE_API.post('/admin/login', payload);
+      window.BTE_ADMIN.setToken(res.token);
+      window.location.href = 'index.html';
+    } catch (err) {
+      flash.innerHTML = '<div class="flash flash-error" role="alert" aria-live="assertive">' + (err.message || 'Invalid email or password.') + '</div>';
+      btn.disabled = false;
+      btn.textContent = 'Sign in';
+    }
+  });
+});
+</script>
+</body>
+</html>

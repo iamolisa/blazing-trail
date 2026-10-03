@@ -1,0 +1,79 @@
+/* Admin dashboard styles, layered on top of main.css tokens */
+
+.admin-body { background: var(--bg); min-height: 100vh; }
+
+.admin-login-wrap {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: var(--navy-deep); padding: 24px; position: relative; overflow: hidden;
+}
+/* A glass card over a flat color shows no blur at all - there has to be
+   something behind it with enough contrast/detail to actually see
+   through. This is a static version of the hero's glow-orb treatment,
+   just for that purpose; no animation here, since a login screen should
+   feel calm, not decorative. */
+.admin-login-wrap::before {
+  content: ''; position: absolute; width: 480px; height: 480px; border-radius: 50%;
+  background: radial-gradient(circle, var(--red-glow), transparent 70%);
+  top: -10%; right: -8%; opacity: 0.45; pointer-events: none;
+}
+.admin-login-card {
+  background: rgba(255,255,255,0.055); border: 1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border-radius: var(--radius-lg); padding: 48px 40px; width: 100%; max-width: 400px;
+  box-shadow: var(--shadow-card-hover); position: relative; z-index: 1;
+}
+.admin-login-card h1 { font-size: 22px; margin-bottom: 8px; color: var(--white); }
+.admin-login-card p { font-size: 13.5px; margin-bottom: 28px; }
+
+.admin-shell { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+@media (max-width: 900px) { .admin-shell { grid-template-columns: 1fr; } .admin-sidebar { display:none; } }
+
+.admin-sidebar { background: var(--navy-deep); color: rgba(255,255,255,0.75); padding: 28px 20px; display: flex; flex-direction: column; }
+.admin-sidebar .brand-name { color: #fff; }
+.admin-nav { margin-top: 44px; display: flex; flex-direction: column; gap: 4px; }
+.admin-nav a { padding: 12px 14px; border-radius: var(--radius-icon-sm); font-size: 14px; display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,0.65); transition: 0.2s; }
+.admin-nav a:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.admin-nav a.active { background: var(--red-tint); color: #fff; border: 1px solid rgba(228,0,27,0.3); }
+.admin-sidebar-footer { margin-top: auto; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 13px; }
+
+.admin-main { padding: 40px 44px; background: var(--bg); }
+.admin-topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 36px; flex-wrap: wrap; gap: 16px; }
+.admin-topbar h1 { font-size: 24px; color: var(--white); }
+
+.admin-stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; margin-bottom: 36px; }
+@media (max-width: 900px) { .admin-stats { grid-template-columns: repeat(2, 1fr); } }
+.admin-stat-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 22px; }
+.admin-stat-num { font-family: var(--font-mono); font-size: 26px; font-weight: 500; color: var(--white); }
+.admin-stat-label { font-size: 12px; color: var(--steel-light); margin-top: 6px; }
+
+.admin-panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 28px; margin-bottom: 24px; }
+.admin-panel h3 { font-size: 15px; margin-bottom: 20px; color: var(--white); }
+
+table.admin-table { width: 100%; border-collapse: collapse; font-size: 13.5px; color: var(--white); }
+table.admin-table th { text-align: left; font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--steel-light); padding: 10px 12px; border-bottom: 1px solid var(--line); }
+table.admin-table td { padding: 14px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+table.admin-table tr:last-child td { border-bottom: none; }
+
+.status-pill { font-family: var(--font-mono); font-size: 11px; padding: 4px 10px; border-radius: 999px; text-transform: capitalize; }
+.status-new { background: rgba(59,130,246,0.15); color: #60A5FA; }
+.status-contacted { background: rgba(245,158,11,0.15); color: #FBBF24; }
+.status-quoted { background: rgba(168,85,247,0.15); color: #C084FC; }
+.status-won { background: rgba(34,197,94,0.15); color: #4ADE80; }
+.status-lost { background: rgba(228,0,27,0.15); color: #FF6B7D; }
+
+.icon-btn { background: none; border: none; cursor: pointer; color: var(--steel); padding: 6px; border-radius: var(--radius-sm); }
+.icon-btn:hover { background: var(--surface-hover); color: var(--white); }
+
+.admin-tab-group { display: flex; gap: 6px; background: rgba(255,255,255,0.04); border: 1px solid var(--line); border-radius: 999px; padding: 4px; }
+.admin-tab {
+  font-family: var(--font-mono); font-size: 12px; padding: 8px 16px; border-radius: 999px; border: none;
+  background: transparent; color: var(--steel); cursor: pointer; transition: all 0.2s ease;
+}
+.admin-tab:hover { color: var(--white); }
+.admin-tab.active { background: var(--red); color: #fff; }
+
+.testimonial-admin-card { padding: 22px 26px; }
+.testimonial-admin-head { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; }
+.testimonial-admin-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.testimonial-reply-editor { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+.testimonial-reply-editor textarea.reply-textarea { resize: vertical; min-height: 60px; }

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../images/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../images/favicon-180.png">
+<title>Testimonials - Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800;900&family=Work+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css">
+<link rel="stylesheet" href="../css/admin.css">
+</head>
+<body class="admin-body">
+
+<div class="admin-shell">
+  <div id="admin-sidebar-slot"></div>
+  <div class="admin-main">
+    <div class="admin-topbar">
+      <h1>Testimonials</h1>
+      <div class="admin-tab-group" id="status-filter">
+        <button type="button" class="admin-tab active" data-filter="all">All</button>
+        <button type="button" class="admin-tab" data-filter="pending">Pending<span id="pending-count-badge"></span></button>
+        <button type="button" class="admin-tab" data-filter="approved">Approved</button>
+      </div>
+    </div>
+    <div id="testimonials-flash"></div>
+    <div id="testimonials-list"><p>Loading…</p></div>
+  </div>
+</div>
+
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/admin/admin-shell.js"></script>
+<script>
+function escapeHtml(s) {
+  return (s || '').toString().replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+
+var allTestimonials = [];
+var currentFilter = 'all';
+
+function renderList() {
+  var list = document.getElementById('testimonials-list');
+  var items = allTestimonials.filter(function (t) {
+    return currentFilter === 'all' || t.status === currentFilter;
+  });
+
+  if (!items.length) {
+    list.innerHTML = '<div class="admin-panel"><p>No ' + (currentFilter === 'all' ? '' : currentFilter + ' ') + 'testimonials.</p></div>';
+    return;
+  }
+
+  list.innerHTML = items.map(function (t) {
+    var meta = [t.reviewer_meta, t.review_date_label].filter(Boolean).map(escapeHtml).join(' · ');
+    var stars = '★'.repeat(t.rating || 0) + '☆'.repeat(5 - (t.rating || 0));
+    return (
+      '<div class="admin-panel testimonial-admin-card" data-id="' + t.id + '">' +
+      '  <div class="testimonial-admin-head">' +
+      '    <div>' +
+      '      <span class="status-pill status-' + (t.status === 'approved' ? 'won' : 'contacted') + '">' + t.status + '</span>' +
+      '      ' + (t.is_featured ? '<span class="status-pill status-quoted">Featured</span>' : '') +
+      '      <h3 style="margin-top:10px;">' + escapeHtml(t.client_name) + '</h3>' +
+      '      <div style="font-size:12.5px; color:var(--steel-light); margin-top:2px;">' + (meta || escapeHtml(t.source || '')) + ' · <span style="color:#FBBF24;">' + stars + '</span></div>' +
+      '    </div>' +
+      '    <div class="testimonial-admin-actions">' +
+      '      <button type="button" class="btn btn-outline btn-sm toggle-status-btn" data-status="' + (t.status === 'approved' ? 'pending' : 'approved') + '">' + (t.status === 'approved' ? 'Set pending' : 'Approve') + '</button>' +
+      '      <label style="display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--steel);"><input type="checkbox" class="featured-toggle"' + (t.is_featured ? ' checked' : '') + '> Featured</label>' +
+      '      <button type="button" class="icon-btn delete-btn" style="color:var(--red);">Delete</button>' +
+      '    </div>' +
+      '  </div>' +
+      '  <p style="margin-top:14px; font-size:14px; color:var(--white);">"' + escapeHtml(t.quote) + '"</p>' +
+      '  <div class="testimonial-reply-editor">' +
+      '    <label style="font-size:12px; color:var(--steel-light); display:block; margin-bottom:6px;">Owner reply</label>' +
+      '    <textarea class="input reply-textarea" rows="2" placeholder="Write a reply. It will show under this review on the site...">' + escapeHtml(t.owner_reply || '') + '</textarea>' +
+      '    <button type="button" class="btn btn-primary btn-sm save-reply-btn" style="margin-top:10px;">Save reply</button>' +
+      '  </div>' +
+      '</div>'
+    );
+  }).join('');
+
+  wireCardActions();
+}
+
+function wireCardActions() {
+  document.querySelectorAll('.testimonial-admin-card').forEach(function (card) {
+    var id = card.dataset.id;
+    var flash = document.getElementById('testimonials-flash');
+
+    card.querySelector('.toggle-status-btn').addEventListener('click', async function (e) {
+      var newStatus = e.target.dataset.status;
+      try {
+        await window.BTE_API.adminPatch('/testimonials/' + id, { status: newStatus });
+        await loadTestimonials();
+      } catch (err) {
+        flash.innerHTML = '<div class="flash flash-error" role="alert" aria-live="assertive">Could not update status.</div>';
+      }
+    });
+
+    card.querySelector('.featured-toggle').addEventListener('change', async function (e) {
+      try {
+        await window.BTE_API.adminPatch('/testimonials/' + id, { is_featured: e.target.checked });
+        await loadTestimonials();
+      } catch (err) {
+        flash.innerHTML = '<div class="flash flash-error" role="alert" aria-live="assertive">Could not update featured flag.</div>';
+      }
+    });
+
+    card.querySelector('.save-reply-btn').addEventListener('click', async function (e) {
+      var btn = e.target;
+      var text = card.querySelector('.reply-textarea').value;
+      btn.textContent = 'Saving…';
+      btn.disabled = true;
+      try {
+        await window.BTE_API.adminPatch('/testimonials/' + id, { owner_reply: text });
+        btn.textContent = 'Saved ✓';
+        setTimeout(function () { btn.textContent = 'Save reply'; btn.disabled = false; }, 1500);
+      } catch (err) {
+        flash.innerHTML = '<div class="flash flash-error" role="alert" aria-live="assertive">Could not save reply.</div>';
+        btn.textContent = 'Save reply';
+        btn.disabled = false;
+      }
+    });
+
+    card.querySelector('.delete-btn').addEventListener('click', async function () {
+      if (!confirm('Delete this testimonial permanently?')) return;
+      try {
+        await window.BTE_API.adminDelete('/testimonials/' + id);
+        await loadTestimonials();
+      } catch (err) {
+        flash.innerHTML = '<div class="flash flash-error" role="alert" aria-live="assertive">Could not delete.</div>';
+      }
+    });
+  });
+}
+
+async function loadTestimonials() {
+  var list = document.getElementById('testimonials-list');
+  try {
+    var data = await window.BTE_API.adminGet('/testimonials');
+    allTestimonials = data.testimonials;
+    var pendingCount = allTestimonials.filter(function (t) { return t.status === 'pending'; }).length;
+    document.getElementById('pending-count-badge').textContent = pendingCount ? ' (' + pendingCount + ')' : '';
+    renderList();
+  } catch (err) {
+    list.innerHTML = '<div class="admin-panel"><p>Could not load testimonials. Please refresh.</p></div>';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async function () {
+  var user = await window.BTE_ADMIN.guard();
+  if (!user) return;
+  window.BTE_ADMIN.mountSidebar('testimonials', user);
+
+  document.querySelectorAll('#status-filter .admin-tab').forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      document.querySelectorAll('#status-filter .admin-tab').forEach(function (t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      currentFilter = tab.dataset.filter;
+      renderList();
+    });
+  });
+
+  await loadTestimonials();
+});
+</script>
+</body>
+</html>

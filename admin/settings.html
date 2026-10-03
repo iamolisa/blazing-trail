@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../images/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../images/favicon-180.png">
+<title>Settings - Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800;900&family=Work+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/main.css">
+<link rel="stylesheet" href="../css/admin.css">
+</head>
+<body class="admin-body">
+
+<div class="admin-shell">
+  <div id="admin-sidebar-slot"></div>
+  <div class="admin-main">
+    <div class="admin-topbar"><h1>Settings</h1></div>
+    <div id="settings-flash"></div>
+    <div class="admin-panel" style="max-width:480px;">
+      <h3 style="margin-bottom:6px;">Change password</h3>
+      <p style="font-size:13.5px; color:var(--steel-light); margin-bottom:22px;">
+        Changing your password immediately signs out any other device or
+        browser using this account. You'll stay signed in here.
+      </p>
+      <form id="password-form">
+        <div class="field" style="margin-bottom:16px;">
+          <label>Current password</label>
+          <input type="password" name="current_password" class="input" required autocomplete="current-password">
+        </div>
+        <div class="field" style="margin-bottom:16px;">
+          <label>New password</label>
+          <input type="password" name="new_password" class="input" required minlength="10" autocomplete="new-password">
+          <p class="hint">At least 10 characters.</p>
+        </div>
+        <div class="field" style="margin-bottom:22px;">
+          <label>Confirm new password</label>
+          <input type="password" name="confirm_password" class="input" required minlength="10" autocomplete="new-password">
+        </div>
+        <button type="submit" class="btn btn-primary">Update password</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/admin/admin-shell.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async function () {
+  var user = await window.BTE_ADMIN.guard();
+  if (!user) return;
+  window.BTE_ADMIN.mountSidebar('settings', user);
+
+  var form = document.getElementById('password-form');
+  var flash = document.getElementById('settings-flash');
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var newPassword = form.new_password.value;
+    var confirmPassword = form.confirm_password.value;
+
+    if (newPassword !== confirmPassword) {
+      flash.innerHTML = '<div class="flash flash-error" role="alert" aria-live="assertive">New password and confirmation don\'t match.</div>';
+      return;
+    }
+
+    var btn = form.querySelector('button[type="submit"]');
+    var original = btn.textContent;
+    btn.textContent = 'Updating…';
+    btn.disabled = true;
+
+    try {
+      var result = await window.BTE_API.adminPatch('/me/password', {
+        current_password: form.current_password.value,
+        new_password: newPassword,
+      });
+      if (result.token) window.BTE_ADMIN.setToken(result.token);
+      flash.innerHTML = '<div class="flash flash-success" role="status" aria-live="polite">Password updated.</div>';
+      form.reset();
+    } catch (err) {
+      flash.innerHTML = '<div class="flash flash-error" role="alert" aria-live="assertive">' + (err.message || 'Could not update password.') + '</div>';
+    }
+    btn.textContent = original;
+    btn.disabled = false;
+  });
+});
+</script>
+</body>
+</html>
