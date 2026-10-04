@@ -1,9 +1,9 @@
 /* Admin dashboard styles, layered on top of main.css tokens */
 
-.admin-body { background: var(--bg); min-height: 100vh; }
+.admin-body { background: var(--bg); min-height: 100vh; min-height: 100dvh; }
 
 .admin-login-wrap {
-  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; min-height: 100dvh; display: flex; align-items: center; justify-content: center;
   background: var(--navy-deep); padding: 24px; position: relative; overflow: hidden;
 }
 /* A glass card over a flat color shows no blur at all - there has to be
@@ -25,11 +25,46 @@
 .admin-login-card h1 { font-size: 22px; margin-bottom: 8px; color: var(--white); }
 .admin-login-card p { font-size: 13.5px; margin-bottom: 28px; }
 
-.admin-shell { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
-@media (max-width: 900px) { .admin-shell { grid-template-columns: 1fr; } .admin-sidebar { display:none; } }
+.admin-shell { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; min-height: 100dvh; }
 
 .admin-sidebar { background: var(--navy-deep); color: rgba(255,255,255,0.75); padding: 28px 20px; display: flex; flex-direction: column; }
 .admin-sidebar .brand-name { color: #fff; }
+
+/* Below 900px the sidebar used to just vanish with nothing replacing it,
+   leaving no way to reach Products/Leads/Testimonials/Settings on a
+   phone or tablet at all. It's an off-canvas drawer here instead,
+   opened by .admin-mobile-topbar's hamburger - same slide-in pattern as
+   the public site's own nav drawer, for a consistent feel. */
+.admin-mobile-topbar { display: none; }
+.admin-sidebar-backdrop { display: none; }
+
+@media (max-width: 900px) {
+  .admin-shell { grid-template-columns: 1fr; }
+
+  .admin-mobile-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 20px; background: var(--navy-deep);
+    position: sticky; top: 0; z-index: 85;
+  }
+  .admin-mobile-topbar .brand-name { color: #fff; font-size: 15px; }
+  .admin-mobile-toggle {
+    display: flex; flex-direction: column; gap: 5px; background: none; border: none;
+    cursor: pointer; padding: 6px;
+  }
+  .admin-mobile-toggle span { width: 22px; height: 2px; background: #fff; transition: 0.3s; }
+
+  .admin-sidebar-backdrop.open {
+    display: block; position: fixed; inset: 0; z-index: 88;
+    background: rgba(0,0,0,0.5);
+  }
+
+  .admin-sidebar {
+    position: fixed; top: 0; left: 0; bottom: 0; width: 260px; z-index: 89;
+    transform: translateX(-100%); transition: transform 0.4s var(--ease);
+    overflow-y: auto;
+  }
+  .admin-sidebar.open { transform: translateX(0); }
+}
 .admin-nav { margin-top: 44px; display: flex; flex-direction: column; gap: 4px; }
 .admin-nav a { padding: 12px 14px; border-radius: var(--radius-icon-sm); font-size: 14px; display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,0.65); transition: 0.2s; }
 .admin-nav a:hover { background: rgba(255,255,255,0.08); color: #fff; }
@@ -39,6 +74,10 @@
 .admin-main { padding: 40px 44px; background: var(--bg); }
 .admin-topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 36px; flex-wrap: wrap; gap: 16px; }
 .admin-topbar h1 { font-size: 24px; color: var(--white); }
+/* Matches the public site's own .container padding reduction at the
+   same breakpoint, rather than leaving the desktop 44px squeeze content
+   on a phone screen. */
+@media (max-width: 640px) { .admin-main { padding: 24px 20px; } }
 
 .admin-stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; margin-bottom: 36px; }
 @media (max-width: 900px) { .admin-stats { grid-template-columns: repeat(2, 1fr); } }
@@ -49,10 +88,17 @@
 .admin-panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); padding: 28px; margin-bottom: 24px; }
 .admin-panel h3 { font-size: 15px; margin-bottom: 20px; color: var(--white); }
 
+/* Tables don't reflow for narrow screens on their own - this scrolls just
+   the table horizontally rather than letting it crush unreadable or
+   break the page's own layout. white-space: nowrap on cells (below)
+   stops columns wrapping mid-word before the scrollbar has a chance to
+   kick in. */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 table.admin-table { width: 100%; border-collapse: collapse; font-size: 13.5px; color: var(--white); }
-table.admin-table th { text-align: left; font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--steel-light); padding: 10px 12px; border-bottom: 1px solid var(--line); }
-table.admin-table td { padding: 14px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+table.admin-table th { text-align: left; font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--steel-light); padding: 10px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+table.admin-table td { padding: 14px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; white-space: nowrap; }
 table.admin-table tr:last-child td { border-bottom: none; }
+@media (max-width: 680px) { table.admin-table { min-width: 620px; } }
 
 .status-pill { font-family: var(--font-mono); font-size: 11px; padding: 4px 10px; border-radius: 999px; text-transform: capitalize; }
 .status-new { background: rgba(59,130,246,0.15); color: #60A5FA; }

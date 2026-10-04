@@ -57,7 +57,9 @@ window.BTE_SHELL = (function () {
       '      <span class="brand-mark"><img src="images/blazing-trail-icon.png" alt="Blazing Trail Engineering"></span>' +
       '      <span class="brand-name">Blazing Trail<span>Engineering</span></span>' +
       '    </a>' +
-      '    <div class="nav-links" id="nav-links-menu">' + linksHtml + '</div>' +
+      '    <div class="nav-links" id="nav-links-menu">' + linksHtml +
+      '      <a href="quote.html" class="btn btn-primary nav-links-cta magnetic">Request a Quote</a>' +
+      '    </div>' +
       '    <div class="nav-cta">' +
       '      <a href="quote.html" class="btn btn-primary btn-sm magnetic">Request a Quote</a>' +
       '      <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-links-menu"><span></span><span></span><span></span></button>' +

@@ -7,8 +7,18 @@ window.BTE_ADMIN = (function () {
   function clearToken() { window.localStorage.removeItem('bte_admin_token'); }
 
   function sidebarHtml(activeNav, userName) {
+    // Below 900px the sidebar itself becomes an off-canvas drawer (see
+    // admin.css), opened by .admin-mobile-topbar's button below - without
+    // that topbar, there'd be no way to reach the sidebar's links at all
+    // on a phone, since the sidebar is simply hidden rather than
+    // relocated. The backdrop closes the drawer on an outside tap.
     return (
-      '<div class="admin-sidebar">' +
+      '<div class="admin-mobile-topbar">' +
+      '  <button class="admin-mobile-toggle" id="admin-mobile-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="admin-sidebar"><span></span><span></span><span></span></button>' +
+      '  <span class="brand-name">Blazing Trail<span style="color:#FF7A87;">Admin</span></span>' +
+      '</div>' +
+      '<div class="admin-sidebar-backdrop" id="admin-sidebar-backdrop"></div>' +
+      '<div class="admin-sidebar" id="admin-sidebar">' +
       '  <div class="brand"><span class="brand-mark"><img src="../images/blazing-trail-icon.png" alt="Blazing Trail Engineering"></span>' +
       '    <span class="brand-name">Blazing Trail<span style="color:#FF7A87;">Admin</span></span></div>' +
       '  <nav class="admin-nav">' +
@@ -51,6 +61,32 @@ window.BTE_ADMIN = (function () {
       try { await window.BTE_API.adminPost('/logout', {}); } catch (err) { /* ignore */ }
       clearToken();
       window.location.href = 'login.html';
+    });
+
+    var toggle = document.getElementById('admin-mobile-toggle');
+    var sidebar = document.getElementById('admin-sidebar');
+    var backdrop = document.getElementById('admin-sidebar-backdrop');
+
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      backdrop.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+    function toggleSidebar() {
+      var isOpen = sidebar.classList.toggle('open');
+      backdrop.classList.toggle('open', isOpen);
+      toggle.setAttribute('aria-expanded', String(isOpen));
+    }
+
+    toggle.addEventListener('click', toggleSidebar);
+    backdrop.addEventListener('click', closeSidebar);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeSidebar(); });
+    // A click on any nav link (navigating to another admin page) should
+    // close the drawer too - otherwise it'd reopen pinned over the next
+    // page since .open isn't reset by a full page load, just confusingly
+    // present until manually toggled.
+    sidebar.querySelectorAll('.admin-nav a').forEach(function (a) {
+      a.addEventListener('click', closeSidebar);
     });
   }
 

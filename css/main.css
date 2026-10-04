@@ -221,6 +221,11 @@ textarea:focus-visible, select:focus-visible {
 .nav-cta { display: flex; align-items: center; gap: 18px; }
 
 .nav-toggle { display: none; }
+/* Lives inside the drawer so "Request a Quote" survives on the narrowest
+   phones below, where the top-bar copy of this same button gets hidden
+   for space. Not shown anywhere above that - the top-bar button already
+   covers it there, and showing both would be redundant. */
+.nav-links-cta { display: none; }
 
 @media (max-width: 900px) {
   .nav-links { position: fixed; inset: 0; top: 0; background: var(--navy-deep); flex-direction: column;
@@ -231,6 +236,18 @@ textarea:focus-visible, select:focus-visible {
   .nav-toggle span { width: 24px; height: 2px; background: var(--white); transition: 0.3s; }
   .nav-toggle.open span { background: var(--ink-inverse); }
   .nav-cta .btn-outline { display: none; }
+}
+
+/* Small-phone tier (iPhone SE/mini and similarly narrow Android widths).
+   Logo + "Request a Quote" + hamburger all in one row measures out to
+   roughly 350px of content against ~335px of available width at 375px
+   viewports once container padding is subtracted - tight enough to
+   visibly squeeze or overflow. Rather than shrink the button to the
+   point its label is hard to read, it's dropped from the top bar here
+   and picked up by .nav-links-cta inside the drawer instead. */
+@media (max-width: 480px) {
+  .nav-cta > .btn-primary { display: none; }
+  .nav-links-cta { display: inline-flex; margin-top: 10px; }
 }
 
 /* -------------------------------------------------------------------------
@@ -275,6 +292,11 @@ textarea:focus-visible, select:focus-visible {
 .hero {
   position: relative;
   min-height: 100vh;
+  /* 100vh includes the area the browser's address bar can occupy, so on
+     mobile this can visibly jump/clip as the bar shows or hides on
+     scroll. 100dvh tracks the actual visible viewport instead - browsers
+     that don't support it just ignore this line and keep 100vh above. */
+  min-height: 100dvh;
   display: flex;
   align-items: flex-end;
   color: var(--white);
@@ -667,6 +689,7 @@ textarea:focus-visible, select:focus-visible {
    ---------------------------------------------------------------------- */
 .stat-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; }
 @media (max-width: 780px) { .stat-strip { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .stat-strip { grid-template-columns: 1fr; } }
 .stat-block { text-align: left; padding: 28px 0; border-top: 1px solid var(--line); }
 .stat-number { font-family: var(--font-mono); font-size: clamp(30px, 3.4vw, 44px); font-weight: 500; color: var(--white); }
 .stat-number .unit { color: var(--red); }
