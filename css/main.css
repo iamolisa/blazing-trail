@@ -190,10 +190,23 @@ textarea:focus-visible, select:focus-visible {
 
 .navbar.scrolled {
   padding: 14px 0;
+  box-shadow: 0 1px 0 var(--line), 0 12px 32px -20px rgba(0,0,0,0.6);
+}
+/* backdrop-filter lives on this pseudo-element rather than directly on
+   .navbar. A filter/backdrop-filter/transform on an element creates a
+   new positioning "containing block" for any position:fixed descendant
+   - and .nav-links (the mobile drawer) is exactly that. With the filter
+   on .navbar itself, the "full-screen" drawer silently became fixed
+   relative to the navbar's own small box instead of the real viewport
+   the moment the page was scrolled, which is what broke it. Applying
+   the same visual effect to a pseudo-element instead keeps .navbar
+   itself filter-free, so .nav-links resolves against the viewport like
+   it's supposed to. */
+.navbar.scrolled::before {
+  content: ''; position: absolute; inset: 0; z-index: -1;
   background: rgba(7, 12, 20, 0.85);
   backdrop-filter: blur(16px) saturate(160%);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
-  box-shadow: 0 1px 0 var(--line), 0 12px 32px -20px rgba(0,0,0,0.6);
 }
 
 .brand { display: flex; align-items: center; gap: 12px; }
@@ -538,25 +551,15 @@ textarea:focus-visible, select:focus-visible {
    card holds ~82% of the viewport width so the next one visibly peeks in
    from the edge as a swipe hint.
    ---------------------------------------------------------------------- */
-@media (max-width: 640px) {
-  .grid-scroll {
-    display: flex;
-    grid-template-columns: none;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    gap: 16px;
-    margin: 0 -20px;
-    padding: 4px 20px 20px;
-    scrollbar-width: none;
-  }
-  .grid-scroll::-webkit-scrollbar { display: none; }
-  .grid-scroll > * {
-    scroll-snap-align: start;
-    flex: 0 0 82%;
-    max-width: 340px;
-  }
-}
+/* This used to turn these homepage preview sections into a horizontal
+   scroll-snap carousel on mobile (each card at 82% width, the next one
+   peeking in as a swipe hint). Removed so these sections behave exactly
+   like every other grid on the site - a clean single column - rather
+   than being the one inconsistent pattern. .grid-3/.grid-4's own
+   @media (max-width: 640px) rule above already collapses these to 1fr;
+   .grid-scroll no longer does anything differently from a plain .grid,
+   kept only so the class name in the HTML doesn't need to change too.
+   */
 
 .card {
   background: var(--surface);
