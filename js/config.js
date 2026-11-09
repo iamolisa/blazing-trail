@@ -5,7 +5,7 @@
 window.BTE_CONFIG = {
   API_BASE_URL: (function () {
     var override = localStorage.getItem('bte_api_base');
-    return override || 'https://blazing-backend-bace.onrender.com/api';
+    return override || 'https://blazing-backend-t6jk.onrender.com';
   })(),
 
   // Fill these in before going live. Each one is independently optional:
